@@ -23,6 +23,10 @@ class ForthTask(QWidget):
 
         self.init_ui()
 
+    def rotate(self):
+        self.rotation_angle += 10
+        self.update()
+
     def init_ui(self):
         self.setWindowTitle('Forth Task')
         p = self.palette()
@@ -122,15 +126,29 @@ class ForthTask(QWidget):
                 if yp < miny: miny = yp
         return minx, maxx, miny, maxy
 
-
     def function(self, x, y):
         return x*y**3-y*x**3
         # return math.cos(x + y) + x**2/1 - y**2/1
         # return math.sin(x**2 + y**2)
         # return math.cos(x * y)
 
+    def rotatate_vector(self, x, y, z):
+        alpha = numpy.radians(self.rotation_angle)
+        c, s = numpy.cos(alpha), numpy.sin(alpha)
+        rotation_matrix = numpy.array(((c, s, 0),
+                                       (-s, c, 0),
+                                       (0, 0, 1),))
+        return rotation_matrix.dot(numpy.array((x, y, z))).tolist()
+
     def projection(self, x, y, z):
+        return self.isometric_projection(x, y, z)
+        # return self.dimetric_projection(*self.rotatate_vector(x, y, z))
+
+    def isometric_projection(self, x, y, z):
         return (y - x) * math.sqrt(3.0) / 2, (x + y) / 2 - z
+
+    def dimetric_projection(self, x, y, z):
+        return -x / (2 * math.sqrt(2)) + y, x / (2 * math.sqrt(2)) - z
 
 
 def my_exception_hook(exctype, value, traceback):
@@ -140,8 +158,6 @@ def my_exception_hook(exctype, value, traceback):
 
 
 if __name__ == '__main__':
-    sys._excepthook = sys.excepthook
-
     sys.excepthook = my_exception_hook
     app = QApplication(sys.argv)
     ex = ForthTask()
