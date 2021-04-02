@@ -48,7 +48,6 @@ class ForthTask(QWidget):
         self.bottom = [0] * (self.geometry().width() + 1)
 
         m = self.geometry().width() * 2
-
         mx = self.geometry().width()
         my = self.geometry().height()
 
@@ -141,13 +140,23 @@ class ForthTask(QWidget):
         return rotation_matrix.dot(numpy.array((x, y, z))).tolist()
 
     def projection(self, x, y, z):
+        # все углы между осями 120 градусов, расстояния до осей одинаковые
         return self.isometric_projection(x, y, z)
+
         # return self.dimetric_projection(*self.rotatate_vector(x, y, z))
 
     def isometric_projection(self, x, y, z):
+        # В изометрии все углы между осями равны 120 градусов.
+        # Расстояния по каждой из осей откладываются одинаковые.
+        # xx = (y - x) * sqrt(3)/2
+        # yy = (x + y) / 2 - z
         return (y - x) * math.sqrt(3.0) / 2, (x + y) / 2 - z
 
     def dimetric_projection(self, x, y, z):
+        # В диметрии ось х расположена относительно двух других осей под углом 135 градусов.
+        # При этом вдоль нее расстояния откладываются вдвое меньше.
+        # xx = -x/(2*sqrt(2)) + y
+        # yy = x/(2*sqrt(2)) - z
         return -x / (2 * math.sqrt(2)) + y, x / (2 * math.sqrt(2)) - z
 
 
