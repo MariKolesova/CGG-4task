@@ -2,8 +2,8 @@ import math
 import numpy
 
 from PyQt5.QtWidgets import QWidget, QApplication
-from PyQt5.QtGui import QPainter, QPen, QPolygon, QBrush, QFont, QMouseEvent
-from PyQt5.QtCore import Qt, QPoint, QRect, QLine, QTimer
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import sys
 
 
@@ -12,10 +12,10 @@ class ForthTask(QWidget):
         super().__init__()
         self.setGeometry(100, 100, 600, 600)
 
-        self.x1 = -2
-        self.x2 = 2
-        self.y1 = -2
-        self.y2 = 2
+        self.x1 = -3
+        self.x2 = 3
+        self.y1 = -3
+        self.y2 = 3
         self.top = []
         self.bottom = []
         self.rotation_angle = 0
@@ -44,14 +44,24 @@ class ForthTask(QWidget):
         qp.end()
 
     def draw_function(self, qp: QPainter):
+        # Инициализируем состояние горизонтов.
         self.top = [self.geometry().height()] * (self.geometry().width() + 1)
         self.bottom = [0] * (self.geometry().width() + 1)
 
+
+        # Число точек на одной линии обязано быть большим. Его обычно
+        # берут равным удвоенному разрешению экрана по оси x.
         m = self.geometry().width() * 2
         mx = self.geometry().width()
         my = self.geometry().height()
 
+        # Непосредственно перед рисованием проводим инициализацию
+        # верхнего и нижнего горизонтов.
         minx, maxx, miny, maxy = self.find_max_and_min(m)
+
+        # Перед рисованием необходимо просчитать по сетке диапазон
+        # изменения координат в плоскости экрана.
+        # Это необходимо для последующего масштабирования.
         for i in range(self.n + 1):
             x = self.x2 + i * (self.x1 - self.x2) / self.n
             for j in range(m):
@@ -69,6 +79,8 @@ class ForthTask(QWidget):
                     qp.drawPoint(xx, yy)
                     self.top[xx] = yy
 
+        # Перед рисованием линий в перпендикулярном направлении необходимо заново
+        # инициализировать состояние горизонтов.
         self.top = [self.geometry().height()] * (self.geometry().width() + 1)
         self.bottom = [0] * (self.geometry().width() + 1)
 
@@ -92,7 +104,7 @@ class ForthTask(QWidget):
                     self.top[xx] = yy
 
     def find_max_and_min(self, m):
-        minx = 100000
+        minx = 10000
         maxx = -minx
         miny = minx
         maxy = maxx
@@ -132,6 +144,8 @@ class ForthTask(QWidget):
         # return math.cos(x * y)
 
     def rotatate_vector(self, x, y, z):
+        # Поворот вокруг оси z в плоскости (x, y) на угол γ
+        # соответствует умножению на матрицы
         alpha = numpy.radians(self.rotation_angle)
         c, s = numpy.cos(alpha), numpy.sin(alpha)
         rotation_matrix = numpy.array(((c, s, 0),
@@ -140,10 +154,8 @@ class ForthTask(QWidget):
         return rotation_matrix.dot(numpy.array((x, y, z))).tolist()
 
     def projection(self, x, y, z):
-        # все углы между осями 120 градусов, расстояния до осей одинаковые
-        return self.isometric_projection(x, y, z)
-
-        # return self.dimetric_projection(*self.rotatate_vector(x, y, z))
+        # return self.isometric_projection(x, y, z)
+        return self.dimetric_projection(*self.rotatate_vector(x, y, z))
 
     def isometric_projection(self, x, y, z):
         # В изометрии все углы между осями равны 120 градусов.
@@ -153,7 +165,8 @@ class ForthTask(QWidget):
         return (y - x) * math.sqrt(3.0) / 2, (x + y) / 2 - z
 
     def dimetric_projection(self, x, y, z):
-        # В диметрии ось х расположена относительно двух других осей под углом 135 градусов.
+        # В диметрии ось х расположена относительно двух других
+        # осей под углом 135 градусов.
         # При этом вдоль нее расстояния откладываются вдвое меньше.
         # xx = -x/(2*sqrt(2)) + y
         # yy = x/(2*sqrt(2)) - z
