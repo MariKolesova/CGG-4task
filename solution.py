@@ -23,9 +23,9 @@ class ForthTask(QWidget):
 
         self.init_ui()
 
-    def rotate(self):
-        self.rotation_angle += 10
-        self.update()
+    # def rotate(self):
+    #     self.rotation_angle += 10
+    #     self.update()
 
     def init_ui(self):
         self.setWindowTitle('Forth Task')
@@ -154,8 +154,8 @@ class ForthTask(QWidget):
         return rotation_matrix.dot(numpy.array((x, y, z))).tolist()
 
     def projection(self, x, y, z):
-        # return self.isometric_projection(x, y, z)
-        return self.dimetric_projection(*self.rotatate_vector(x, y, z))
+        return self.isometric_projection(x, y, z)
+        # return self.dimetric_projection(*self.rotatate_vector(x, y, z))
 
     def isometric_projection(self, x, y, z):
         # В изометрии все углы между осями равны 120 градусов.
