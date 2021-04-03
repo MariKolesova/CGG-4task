@@ -66,6 +66,8 @@ class ForthTask(QWidget):
                 xp, yp = self.projection(x, y, z)
                 xx = round((xp - minx) * mx / (maxx - minx))
                 yy = round((yp - miny) * my / (maxy - miny))
+                # Точки выше верхнего горизонта находятся на лицевой части поверхности,
+                # а ниже - на обратной стороне
                 if yy > self.bottom[xx]:
                     qp.setPen(QPen(Qt.red, 1, Qt.SolidLine))
                     qp.drawPoint(xx, yy)
