@@ -23,10 +23,6 @@ class ForthTask(QWidget):
 
         self.init_ui()
 
-    # def rotate(self):
-    #     self.rotation_angle += 10
-    #     self.update()
-
     def init_ui(self):
         self.setWindowTitle('Forth Task')
         p = self.palette()
